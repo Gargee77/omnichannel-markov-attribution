@@ -44,6 +44,6 @@ How it works (high level):
 
 Repo structure:
 
-python/   - data generation, loading, Markov attribution
-sql/      - schema, journeys, baseline attribution, Power BI views, checks
-docs/     - screenshots for portfolio/LinkedIn
+- python/   - data generation, loading, Markov attribution
+- sql/      - schema, journeys, baseline attribution, Power BI views, checks
+- docs/     - screenshots 
