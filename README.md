@@ -14,8 +14,8 @@ What this answers:
 Dashboard:
 Screenshots:
 
-1. Overview: docs/dashboard_overview.png 
-2. Attribution comparison: docs/attribution_comparison.png
+1. Overview: docs/Power BI Dashboard.png 
+2. Attribution comparison: docs/Attribution Comparison.png
 
 Data:
 Real marketing journey data isn’t typically public, so I generated event-level data:
