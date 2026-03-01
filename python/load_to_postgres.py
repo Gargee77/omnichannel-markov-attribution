@@ -4,7 +4,7 @@ from sqlalchemy import create_engine, text
 from dotenv import load_dotenv
 
 def main():
-    load_dotenv()  # reads .env in repo root if you run from repo root
+    load_dotenv()  # reads .env in repo root if it's to be run from repo root
     db_url = os.getenv("DATABASE_URL")
 
     if not db_url:

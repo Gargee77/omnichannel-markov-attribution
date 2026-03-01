@@ -1,4 +1,4 @@
--- 03_last_touch.sql
+-- Baseline Last-Touch Attribution
 -- Purpose:
 -- Baseline model to compare against Markov.
 -- Assign each conversion to the most recent engagement event (opened/clicked).
@@ -28,7 +28,7 @@ SELECT
 FROM last_touch
 WHERE rn = 1;
 
--- Summarize last-touch performance by channel (Power BI-friendly).
+-- Summarize last-touch performance by channel.
 CREATE OR REPLACE VIEW v_last_touch_channel_summary AS
 SELECT
   last_touch_channel AS channel,

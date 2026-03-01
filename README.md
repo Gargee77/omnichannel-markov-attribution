@@ -1,97 +1,49 @@
-# omnichannel-markov-attribution
 An end-to-end analytics project that reconstructs user journeys across messaging channels and compares heuristic vs Markov multi-touch attribution using PostgreSQL, Python, and Power BI.
 
-🧠 SQL & Attribution Pipeline — How the Analysis Works
+Omnichannel Attribution: Last-Touch vs Markov 
 
-This project models a real-world omnichannel marketing attribution problem, where customers interact with multiple channels (Email, SMS, Push) before converting. The goal is to understand which channels truly contribute to revenue, beyond simplistic last-touch attribution.
+Marketing teams rarely get a clean 'ad → click → purchase' story. Customers bounce between channels (email, SMS, push), and different attribution methods can tell very different stories about what’s working.
 
-Below is a step-by-step explanation of the SQL pipeline used in this project.
+This project reconstructs conversion journeys and compares a simple baseline (last-touch) to a probabilistic multi-touch model (Markov attribution) to show how channel credit shifts when you account for assist value.
 
-1. Database Schema (sql/01_schema.sql)
+What this answers:
+- Which channels appear to drive revenue under last-touch attribution?
+- How does channel credit change under Markov (multi-touch) attribution?
+- What does engagement (opens/clicks) look like by channel?
 
-This script defines the core tables used throughout the analysis:
+Dashboard:
+Screenshots:
 
-message_events
-Stores raw marketing interaction logs.
-Each row represents a single event (delivered, opened, clicked) for a user on a specific channel.
+1. Overview: docs/dashboard_overview.png 
+2. Attribution comparison: docs/attribution_comparison.png
 
-conversions
-Stores conversion events (e.g., purchase or signup).
-Each row represents a completed conversion with an associated revenue value.
+Data:
+Real marketing journey data isn’t typically public, so I generated event-level data:
+- message_events: delivered/opened/clicked across email/SMS/push
+- conversions: purchase/signup events with revenue
 
-attribution_results
-Stores attribution outputs from different models (last-touch and Markov), allowing model comparisons over time.
+The goal is not perfect realism, it’s to model the same analytics problems teams face in DTC/e-commerce acquisition: multi-touch journeys, attribution bias, and revenue credit assignment.
 
-Indexes are created on (user_id, timestamp) columns to support efficient journey reconstruction.
+How it works (high level):
 
-2. Conversion Journeys & Paths (sql/02_journeys.sql)
+1. Generate data (Python)  
+   Creates marketing event logs + conversions.
 
-This step reconstructs customer journeys leading up to a conversion.
+2) Load to Postgres (Python → Neon Postgres) 
+   Data is inserted into message_events and conversions.
 
-v_conversion_journeys
-For each conversion, all marketing events for the same user in the 14-day window prior to conversion are selected and ordered chronologically.
+3) Model journeys (SQL)
+   Builds a 14-day pre-conversion journey per conversion and aggregates channel paths.
 
-This produces a step-by-step view of how a user moved through channels before converting.
+4) Attribution
+   - Last-touch (SQL): assigns each conversion to the last engagement touch
+   - Markov (Python): builds a transition model from paths and computes removal effects
 
-v_paths_per_conversion
-Aggregates each journey into a single ordered channel path, e.g.
-email > sms > push
+5) Visualize in Power BI
+   Power BI reads curated views to display KPIs, attribution comparison, and engagement.
 
-These paths are the direct input for Markov attribution.
+Repo structure:
 
-3. Baseline Last-Touch Attribution (sql/03_last_touch.sql)
-
-This represents the industry-standard baseline used by many analytics teams.
-
-v_last_touch_attribution
-Assigns each conversion to the most recent engagement event (opened or clicked) before conversion.
-
-v_last_touch_channel_summary
-Aggregates conversions and revenue by channel using last-touch logic.
-
-This baseline is later compared against Markov attribution to highlight bias and over/under-crediting.
-
-4. Power BI–Ready Views (sql/04_powerbi_views.sql)
-
-These views are designed specifically for clean and stable dashboarding:
-
-v_kpi_topline
-Provides executive-level KPIs (users touched, events, conversions, revenue).
-
-v_channel_event_summary
-Summarizes channel engagement (events, opens, clicks, click-through rate).
-
-v_attribution_latest
-Exposes the most recent attribution results per channel and model, enabling direct comparison between last-touch and Markov attribution.
-
-5. Data Quality & Sanity Checks (sql/05_checks.sql)
-
-This file contains validation queries used throughout the project to ensure correctness:
-
-Row count checks after data ingestion
-
-Verification that journeys and paths are non-empty
-
-Confirmation that attribution results exist for all channels and models
-
-These checks reflect real-world “data detective” practices used to validate analytical pipelines.
-
-6. Markov Attribution (Python)
-
-The Markov attribution model is implemented in Python (python/markov_attribution.py) and works as follows:
-
-Reads conversion paths from v_paths_per_conversion
-
-Builds a first-order Markov transition matrix
-
-Computes removal effects by simulating the removal of each channel
-
-Allocates revenue proportionally based on each channel’s impact on conversion probability
-
-Writes results back into attribution_results
-
-This allows a direct comparison between heuristic (last-touch) and probabilistic (Markov) attribution models.
-
-🔑 Key Insight
-
-This pipeline demonstrates how different attribution models can produce materially different conclusions about channel performance, highlighting why multi-touch attribution is critical for informed marketing and financial decision-making.
+python/   - data generation, loading, Markov attribution
+sql/      - schema, journeys, baseline attribution, Power BI views, checks
+docs/     - screenshots for portfolio/LinkedIn

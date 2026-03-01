@@ -1,7 +1,7 @@
--- 02_journeys.sql
+-- Conversion Journeys & Paths (Markov)
 -- Purpose:
--- 1) Build a conversion-centric event sequence ("journey") per conversion.
--- 2) Create a compact "path string" per conversion to feed Markov attribution.
+-- 1. Build a conversion-centric event sequence (journey) per conversion.
+-- 2. Create a compact path string per conversion to feed Markov attribution.
 
 -- Journeys: all relevant events within 14 days before each conversion, ordered in time.
 CREATE OR REPLACE VIEW v_conversion_journeys AS
@@ -14,8 +14,7 @@ WITH ev AS (
     e.campaign_id,
     e.message_id
   FROM message_events e
-  -- Keep engagement-type events for marketing journeys
-  WHERE e.event_type IN ('delivered', 'opened', 'clicked')
+  WHERE e.event_type IN ('delivered', 'opened', 'clicked') -- Keep engagement-type events for marketing journeys (delivered/opened/clicked)
 ),
 joined AS (
   SELECT
@@ -29,7 +28,7 @@ joined AS (
     e.event_type,
     e.campaign_id,
     e.message_id,
-    EXTRACT(EPOCH FROM (c.conversion_ts - e.event_ts)) / 3600.0 AS hours_before_conversion
+    EXTRACT(EPOCH FROM (c.conversion_ts - e.event_ts))/3600.0 AS hours_before_conversion
   FROM conversions c
   JOIN ev e
     ON e.user_id = c.user_id

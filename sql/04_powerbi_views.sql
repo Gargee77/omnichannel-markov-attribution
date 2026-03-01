@@ -1,7 +1,7 @@
--- 04_powerbi_views.sql
--- Purpose: Provide stable, simple views for Power BI visuals.
+-- Dashboard Views
+-- Purpose: Provide stable, simple views for dashboarding.
 
--- KPI cards (single row)
+-- KPI cards 
 CREATE OR REPLACE VIEW v_kpi_topline AS
 SELECT
   (SELECT COUNT(DISTINCT user_id) FROM message_events) AS users_touched,

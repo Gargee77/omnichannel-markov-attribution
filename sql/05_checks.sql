@@ -1,4 +1,4 @@
--- 05_checks.sql
+-- Data Quality & Sanity Checks
 -- Purpose: Data quality and sanity checks to confirm each step produced valid outputs.
 
 -- Raw table row counts
@@ -27,7 +27,7 @@ SELECT * FROM v_paths_per_conversion
 ORDER BY conversion_ts DESC
 LIMIT 10;
 
--- Last-touch should return rows (usually close to #conversions)
+-- Last-touch should return rows 
 SELECT COUNT(*) AS last_touch_rows FROM v_last_touch_attribution;
 
 SELECT * FROM v_last_touch_channel_summary;
@@ -38,7 +38,7 @@ FROM attribution_results
 GROUP BY 1
 ORDER BY 1;
 
--- What Power BI reads
+-- What the dashboard reads
 SELECT * FROM v_kpi_topline;
 SELECT * FROM v_channel_event_summary;
 SELECT * FROM v_attribution_latest ORDER BY model_name, channel;
